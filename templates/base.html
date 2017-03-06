@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">   {# 手机显示优先 #}
+{#    <meta name="author" content="Dashboard">#}
+{#    <meta name="keyword" content="Dashboard, Bootstrap, Admin, Template, Theme, Responsive, Fluid, Retina">#}
+
+    {% load staticfiles %}
+
+    <title>{% block title %} {% endblock %}</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
+    <!--external css-->
+    <link href="{% static 'font-awesome/css/font-awesome.css' %}" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/extend/zabuto_calendar.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/extend/jquery.gritter.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/extend/icon-style.css' %}">
+    
+    <!-- Custom styles for this template -->
+    <link href="{% static 'css/custom/style.css' %}" rel="stylesheet">
+    <link href="{% static 'css/custom/style-responsive.css' %}" rel="stylesheet">
+
+    {% block costom_style %}{% endblock %}
+
+    {% csrf_token %}
+
+  </head>
+  <body>
+
+  <section id="container" >
+      <!-- **********************************************************************************************************************************************************
+      TOP BAR CONTENT & NOTIFICATIONS
+      *********************************************************************************************************************************************************** -->
+      <!--header start-->
+      <header class="header black-bg">
+              <div class="sidebar-toggle-box">
+                  <div class="fa fa-bars tooltips" data-placement="right" data-original-title="显示/隐藏导航栏"></div>
+              </div>
+            <!--logo start-->
+            <a href="index" class="logo"><b>运维管理平台</b></a>
+            <div class="top-menu">
+            	<ul class="nav pull-right top-menu">
+                    <li><a class="logout" href="/login">Logout</a></li>
+            	</ul>
+            </div>
+        </header>
+      <!--header end-->
+      
+      <!-- **********************************************************************************************************************************************************
+      MAIN SIDEBAR MENU
+      *********************************************************************************************************************************************************** -->
+      <!--sidebar start-->
+      <aside>
+          <div id="sidebar"  class="nav-collapse ">
+              <!-- sidebar menu start-->
+              <ul class="sidebar-menu" id="nav-accordion">
+              
+              	  <p class="centered"><a href="/index"><img src="{% static 'img/caonima.png' %}" class="img-circle" width="60"></a></p>
+              	  <h5 class="centered">老李</h5>
+                  <li class="mt">
+                      <a {% block active %}{% endblock %} href="/index">
+                          <i class="fa fa-dashboard"></i>
+                          <span>仪表盘</span>
+                      </a>
+                  </li>
+
+                  <li class="sub-menu">
+                      <a {% block active_1 %}{% endblock %} href="javascript:;" >
+                          <i class="fa fa-inbox"></i>
+                          <span>资产管理</span>
+                      </a>
+                      <ul class="sub">
+                          <li {% block active_1_1 %}{% endblock %}><a href="/asset/list/page=1">资产列表</a></li>
+                      </ul>
+                  </li>
+
+                  <li class="sub-menu">
+                      <a {% block active_2 %}{% endblock %} href="javascript:;" >
+                          <i class="fa fa-desktop"></i>
+                          <span>主机管理</span>
+                      </a>
+                      <ul class="sub">
+                          <li {% block active_2_1 %}{% endblock %}><a href="{% url 'salt_minion_list' %}">主机列表</a></li>
+                          <li {% block active_2_2 %}{% endblock %}><a href="{% url 'salt_batch_exec_cmd' %}">批量管理</a></li>
+                      </ul>
+                  </li>
+              </ul>
+              <!-- sidebar menu end-->
+          </div>
+      </aside>
+      <!--sidebar end-->
+      
+      <!-- **********************************************************************************************************************************************************
+      MAIN CONTENT
+      *********************************************************************************************************************************************************** -->
+      <!--main content start-->
+        <section id="main-content">
+          <section class="wrapper site-min-height">
+            {% block content %} {% endblock %}
+          </section>
+        </section>
+      <!--main content end-->
+      <!--footer start-->
+      <footer class="site-footer">
+          <div class="text-center">
+              2016幸运年
+          </div>
+      </footer>
+      <!--footer end-->
+  </section>
+
+    <!-- js placed at the end of the document so the pages load faster -->
+    <script src="{% static 'js/jquery.js' %}"></script>
+    <script src="{% static 'js/jquery-1.8.3.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script class="include" type="text/javascript" src="{% static 'js/jquery.dcjqaccordion.2.7.js' %}"></script>
+    <script src="{% static 'js/jquery.scrollTo.min.js' %}"></script>
+    <script src="{% static 'js/jquery.nicescroll.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/jquery.sparkline.js' %}"></script>
+
+
+    <!--common script for all pages-->
+    <script src="{% static 'js/common-scripts.js' %}"></script>
+    
+    <script type="text/javascript" src="{% static 'js/jquery.gritter.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/gritter-conf.js' %}"></script>
+
+    <script type="text/javascript" src="{% static 'js/echarts.min.js' %}"></script>
+
+    {% block custom_js %}{% endblock %}
+
+  </body>
+</html>

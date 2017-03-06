@@ -1,0 +1,361 @@
+{% extends 'base.html' %}
+<title>{% block title %}资产列表{% endblock %}</title>
+
+{% block costom_style %}
+<style>
+    button {
+        border-radius: 5px;
+        padding: 3px 4px;
+        color: white;
+        border: none;  {# 去边框 #}
+    }
+    .content-panel .func {
+        padding-bottom: 50px;
+    }
+    #add {
+        float: left;
+    }
+    #search {
+        float: right;
+    }
+    .modal-body label {
+        padding-right: 20px;
+        line-height: 30px;
+        font-weight: bold;
+    }
+    #td-disk {
+         width: 440px
+    }
+    #td-disk table tr th {
+        font-weight: normal;
+        padding-left: 10px;
+        text-align: center;
+{#        border: 1px solid gray;#}
+{#        border-left: 0;#}
+        border-right: 0;
+        border-top: 0;
+    }
+    #td-disk table tr td {
+        border-top: 1px solid gray;
+{#        margin: 200px;#}
+{#        border-left: 0px;#}
+{#        border-right: 0px;#}
+    }
+    .btn-bottom {
+        width: 90px;
+        height: 52px;
+        float: left;
+        padding-top: 10px;
+    }
+</style>
+{% endblock %}
+
+{# 用于鼠标点击导航栏，背景颜色停留在二级页面，每个页面在每个链接上引用一次#}
+{% block active_1 %} class="active" {% endblock %}
+{% block active_1_1 %} class="active" {% endblock %}
+
+{% block content %}
+    <div class="col-md-12">
+        <div class="content-panel" style="margin-bottom: 12px">
+            <h5 >仪表盘 / 资产管理 / <span style="font-weight: bold">资产列表</span></h5>
+        </div>
+    </div>
+    <div class="col-md-12">
+        <div class="content-panel">
+            <div class="func">
+                <h4 class="mb"><i class="fa fa-angle-right"></i>服务器信息</h4>
+                <form id="add" class="form-inline" action="{% url 'asset_add' %}" method="get">
+                    <input type="text" class="form-control" name="minion" placeholder="Minion ID">
+                    <button type="submit" class="btn btn-theme">添加</button>
+                    {% if error %}
+                        <span style="color: red;">{{ error }}</span>
+                    {% endif %}
+                </form>
+                <form id="search" class="form-inline" action="/asset/list/page=1" method="post">
+                {% csrf_token %}
+                    {% if search_error %}
+                        <span style="color: red;">{{ search_error }}</span>
+                    {% endif %}
+                    <input type="text" class="form-control" name="search" placeholder="Search">
+                    <button type="submit" class="btn btn-theme">搜索</button>
+                </form>
+            </div>
+
+            <table class="table" style="margin-bottom: 0px">
+                <thead>
+                <tr>
+                    <th><input type="checkbox" id="all"></th>
+                    <th>公网IP</th>
+                    <th>内网IP</th>
+                    <th>主机名</th>
+                    <th>操作系统</th>
+                    <th>CPU型号</th>
+                    <th>CPU线程数</th>
+                    <th>内存</th>
+                    <th>硬盘</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if search_result %}
+                    {% for host_info in search_result %}
+                        <tr>
+                          <td style="width: 30px"><input id="chk_list_{{ forloop.counter0 }}" type="checkbox" value="{{ host_info.id }}" name="option"></td>
+                          <td hidden id="mytd0">{{ host_info.id }}</td>
+                          <td id="mytd1">{{ host_info.public_ip }}</td>
+                          <td id="mytd2">{{ host_info.intranet_ip }}</td>
+                          <td id="mytd3">{{ host_info.host_name }}</td>
+                          <td id="mytd4">{{ host_info.os }}</td>
+                          <td id="mytd5">{{ host_info.cpu_model }}</td>
+                          <td id="mytd6" style="width: 80px">{{ host_info.cpu_thread_number }}</td>
+                          <td id="mytd7" style="width: 45px">{{ host_info.memory }}</td>
+                          <td id="mytd8" hidden>{{ host_info.disk }}</td>
+                          <td id="td-disk">
+                              <table style="padding-left: 20px;font-weight: normal">
+                                    <tr>
+                                        <th>文件设备</th>
+                                        <th>文件挂载点</th>
+                                        <th>总容量(G)</th>
+                                        <th>剩余容量(G)</th>
+                                    </tr>
+                                  {% for k,v in host_info.disk.items %}
+                                    <tr>
+                                        <td style="background: #BBFFFF;">{{ k }}</td>
+                                        <td style="background: #FFFFCE;">{{ v.mount }}</td>
+                                        <td style="background: #FFB5B5;">{{ v.total }}</td>
+                                        <td style="background: #CEFFCE;">{{ v.avail }}</td>
+                                    </tr>
+                                  {% endfor %}
+                                </table>
+                          </td>
+                          <td style="width: 180px;padding: 5px 6px">
+                              <button class="btn1" style="background: #d9534f" data-id="{{ host_info.id }}">删除</button>
+                              <button class="btn3" style="background: #23c6c8" data-toggle="modal" data-target="#myModal">编辑</button>
+                              <button class="btn2" style="background: #428bca" data-ip="{{ host_info.public_ip }}">更新</button>
+                              <!-- 模态框（Modal） -->
+                            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                <div class="modal-dialog" style="width: 800px">
+                                    <div class="modal-content">
+                                        <div class="modal-header" style="border-radius: 6px">
+                                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                                &times;
+                                            </button>
+                                            <h4 class="modal-title" id="myModalLabel">
+                                                更改服务器信息
+                                            </h4>
+                                        </div>
+                                        <form action="{% url 'asset_edit' %}" method="post">
+                                            {% csrf_token %}
+                                            <div class="modal-body">
+                                                <input hidden id="myinput0" name="id">
+                                                <label class="col-sm-2 col-sm-2 control-label">公网IP</label>
+                                                <input id="myinput1" type="text" style="width: 600px" class="form-control" name="public_ip" required="required" oninvalid="setCustomValidity('公网IP不能为空')" oninput="setCustomValidity('')"><br>
+                                                <label class="col-sm-2 col-sm-2 control-label">内网IP</label>
+                                                <input id="myinput2" type="text" style="width: 600px" class="form-control" name="intranet_ip" required="required" oninvalid="setCustomValidity('内网IP不能为空')" oninput="setCustomValidity('')"><br>
+                                                <label class="col-sm-2 col-sm-2 control-label">主机名</label>
+                                                <input id="myinput3" type="text" style="width: 600px" class="form-control" name="host_name" required="required" oninvalid="setCustomValidity('主机名不能为空')" oninput="setCustomValidity('')"><br>
+                                                <label class="col-sm-2 col-sm-2 control-label">操作系统</label>
+                                                <input id="myinput4" type="text" style="width: 600px" class="form-control" name="os" required="required" oninvalid="setCustomValidity('操作系统版本不能为空')" oninput="setCustomValidity('')"><br>
+                                                <label class="col-sm-2 col-sm-2 control-label">CPU型号</label>
+                                                <input id="myinput5" type="text" style="width: 600px" class="form-control" name="cpu_model" required="required" oninvalid="setCustomValidity('CPU型号不能为空')" oninput="setCustomValidity('')"><br>
+                                                <label class="col-sm-2 col-sm-2 control-label">CPU线程数</label>
+                                                <input id="myinput6" type="text" style="width: 600px" class="form-control" name="cpu_thread_number" required="required" oninvalid="setCustomValidity('CPU线程数不能为空')" oninput="setCustomValidity('')"><br>
+                                                <label class="col-sm-2 col-sm-2 control-label">内存</label>
+                                                <input id="myinput7" type="text" style="width: 600px" class="form-control" name="memory" required="required" oninvalid="setCustomValidity('内存大小不能为空')" oninput="setCustomValidity('')"><br>
+                                                <label class="col-sm-2 col-sm-2 control-label">硬盘</label>
+                                                <input id="myinput8" type="text" style="width: 600px" class="form-control" name="disk" required="required" oninvalid="setCustomValidity('硬盘分区大小不能为空')" oninput="setCustomValidity('')"><br>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                                <button type="submit" class="btn btn-primary">提交更改</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>    <!-- end modal -->
+                          </td>
+                      </tr>
+                    {% endfor %}
+                {% endif %}
+                {% for host_info in asset_info %}
+                    <tr>
+                      <td style="width: 30px"><input id="chk_list_{{ forloop.counter0 }}" type="checkbox" value="{{ host_info.id }}" name="option"></td>
+                      <td hidden id="mytd0">{{ host_info.id }}</td>
+                      <td id="mytd1">{{ host_info.public_ip }}</td>
+                      <td id="mytd2">{{ host_info.intranet_ip }}</td>
+                      <td id="mytd3">{{ host_info.host_name }}</td>
+                      <td id="mytd4">{{ host_info.os }}</td>
+                      <td id="mytd5">{{ host_info.cpu_model }}</td>
+                      <td id="mytd6" style="width: 80px">{{ host_info.cpu_thread_number }}</td>
+                      <td id="mytd7" style="width: 45px">{{ host_info.memory }}</td>
+                      <td id="mytd8" hidden>{{ host_info.disk }}</td>
+                      <td id="td-disk">
+                          <table style="padding-left: 20px">
+                                <tr>
+                                    <th>文件设备</th>
+                                    <th>文件挂载点</th>
+                                    <th>总容量(G)</th>
+                                    <th>剩余容量(G)</th>
+                                </tr>
+                              {% for k,v in host_info.disk.items %}
+                                <tr>
+                                    <td style="background: #BBFFFF;">{{ k }}</td>
+                                    <td style="background: #FFFFCE;">{{ v.mount }}</td>
+                                    <td style="background: #FFB5B5;">{{ v.total }}</td>
+                                    <td style="background: #CEFFCE;">{{ v.avail }}</td>
+                                </tr>
+                              {% endfor %}
+                            </table>
+                      </td>
+                      <td style="width: 180px;padding: 5px 6px">
+                          <button class="btn1" style="background: #d9534f" data-id="{{ host_info.id }}">删除</button>
+                          <button class="btn3" style="background: #23c6c8" data-toggle="modal" data-target="#myModal">编辑</button>
+                          <button class="btn2" style="background: #428bca" data-mid="{{ host_info.minion_id }}">更新</button>
+                            <!-- 模态框（Modal） -->
+                            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                <div class="modal-dialog" style="width: 800px">
+                                    <div class="modal-content">
+                                        <div class="modal-header" style="border-radius: 6px">
+                                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                                &times;
+                                            </button>
+                                            <h4 class="modal-title" id="myModalLabel">
+                                                更改服务器信息
+                                            </h4>
+                                        </div>
+                                        <form action="{% url 'asset_edit' %}" method="post">
+                                            {% csrf_token %}
+                                            <div class="modal-body">
+                                                <input hidden id="myinput0" name="id">
+                                                <label class="col-sm-2 col-sm-2 control-label">公网IP</label>
+                                                <input id="myinput1" type="text" style="width: 600px" class="form-control" name="public_ip" required="required" oninvalid="setCustomValidity('不能为空')" oninput="setCustomValidity('')"><br>
+                                                <label class="col-sm-2 col-sm-2 control-label">内网IP</label>
+                                                <input id="myinput2" type="text" style="width: 600px" class="form-control" name="intranet_ip" required="required" oninvalid="setCustomValidity('不能为空')" oninput="setCustomValidity('')"><br>
+                                                <label class="col-sm-2 col-sm-2 control-label">主机名</label>
+                                                <input id="myinput3" type="text" style="width: 600px" class="form-control" name="host_name" required="required" oninvalid="setCustomValidity('不能为空')" oninput="setCustomValidity('')"><br>
+                                                <label class="col-sm-2 col-sm-2 control-label">操作系统</label>
+                                                <input id="myinput4" type="text" style="width: 600px" class="form-control" name="os" required="required" oninvalid="setCustomValidity('不能为空')" oninput="setCustomValidity('')"><br>
+                                                <label class="col-sm-2 col-sm-2 control-label">CPU型号</label>
+                                                <input id="myinput5" type="text" style="width: 600px" class="form-control" name="cpu_model" required="required" oninvalid="setCustomValidity('不能为空')" oninput="setCustomValidity('')"><br>
+                                                <label class="col-sm-2 col-sm-2 control-label">CPU线程数</label>
+                                                <input id="myinput6" type="text" style="width: 600px" class="form-control" name="cpu_thread_number" required="required" oninvalid="setCustomValidity('不能为空')" oninput="setCustomValidity('')"><br>
+                                                <label class="col-sm-2 col-sm-2 control-label">内存</label>
+                                                <input id="myinput7" type="text" style="width: 600px" class="form-control" name="memory" required="required" oninvalid="setCustomValidity('不能为空')" oninput="setCustomValidity('')"><br>
+                                                <label class="col-sm-2 col-sm-2 control-label">硬盘</label>
+                                                <input id="myinput8" type="text" style="width: 600px" class="form-control" name="disk" required="required" oninvalid="setCustomValidity('不能为空')" oninput="setCustomValidity('')"><br>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                                <button type="submit" class="btn btn-primary">提交更改</button>
+                                            </div>
+                                        </form>
+                                    </div><!-- /.modal-content -->
+                                </div><!-- /.modal -->
+                            </div> <!-- end modal -->
+                      </td>
+                  </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        <div style="width: 1650px;height: 50px">
+            <div class="btn-bottom">
+                <button id="submit-delete" class="btn4" style="background: #d9534f;" >删除</button>
+                <button id="submit-refresh" class="btn4" style="background: #428bca" >更新</button>
+            </div>
+            <div style="float: right;width: auto">
+                <span style="line-height: 50px;padding-right: 20px;">总共 {{ total_record }} 条</span>
+                <ul class="pagination" style="float: right;padding-right: 20px">
+                {% if total_num %}
+                    <li><a href="/asset/list/page=1">&laquo;</a></li>
+                        {% for i in total_num %}
+                            {% if page == forloop.counter %}
+                                <li class="active" ><a href="/asset/list/page={{ forloop.counter }}">{{ forloop.counter }}</a></li>
+                            {% else %}
+                                <li><a href="/asset/list/page={{ forloop.counter }}">{{ forloop.counter }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                    <li><a href="/asset/list/page={{ total_num | length }}">&raquo;</a></li>
+                {% else %}
+                        <li><a href="/asset/list/page=1">返回</a></li>
+                {% endif %}
+
+                </ul>
+            </div>
+        </div>
+        <p id="notice"></p>
+        </div>
+    </div>
+{% endblock %}
+
+{% block custom_js %}
+<script>
+    function loadPage(){
+        location.reload()
+    }
+    $(document).ready(function() {
+        $.ajaxSetup({headers:{'X-CSRFToken':'{{ csrf_token }}'}}); {# 将csrf token值一同post到后端服务器，否则报403错误 #}
+        $(".btn1").click(function() {
+            var id = $(this).data('id');    {# 获取data-id值 #}
+            var json_obj = {};
+            json_obj['del_id'] = id;
+{#            json_obj['csrfmiddlewaretoken'] = $("input[name='csrfmiddlewaretoken']").val(); {# 将csrf token通过数组post到后端服务器 #}
+            if(confirm("确定刪除？")) {
+                $.post("{% url 'asset_action' %}", json_obj, "json", loadPage());
+{#            $.ajax({#}
+{#                type: 'POST',#}
+{#                url: '/ajax_post',#}
+{#                data: json_obj,#}
+{#                dataType: 'json'#}
+{#            });#}
+{#            $("#ptest").html("正在提交表单，请稍后...");#}
+{#                window.location.href="{% url 'asset_list' %}";     // 提交完后再返回页面，所以view里面可以不用render#}
+            }
+        });
+
+       $(".btn2").click(function() {
+            var mid = $(this).data('mid');
+            var json_obj = {refresh_mid: mid};
+            $.post("{% url 'asset_action' %}", json_obj, "json", loadPage());
+        });
+        $(".btn3").click(function() {
+            var tr = $(this).parents('tr');
+            for (var i=0;i<9;i++){
+{#                if (i==8){    // 硬盘暂不支持修改#}
+{#                    continue#}
+{#                }#}
+                txt = tr.find("#mytd" + i).text();
+                $("#myinput" + i).val(txt);
+            }
+        });
+
+        $("#all").click(function () {
+            if ($(this).is(':checked')) {
+                $("input[name='option']").attr("checked", true);
+{#                var obj = $("input[name='option']").val();  // 获取单个值#}
+{#                alert(obj)#}
+                var arr = [];
+                var len = $(".table tbody tr").length;
+                for (var i=0;i<len;i++){
+                    arr[i] = $('#chk_list_' + i).val();
+                }
+            } else {
+                $("input[name='option']").removeAttr("checked", false);
+            }
+            $("#submit-delete").click(function(){
+                var json_obj = {'del_all_id': arr};
+                var gnl = confirm("确定刪除？");
+                if(gnl==true){
+                     $.post("/asset/action", json_obj, 'json', loadPage());
+                }else{
+                    return false;
+                }
+            });
+            $("#submit-refresh").click(function(){
+                var json_obj = {'refresh_all_id': arr};
+                $.post("/asset/action", json_obj, 'json', loadPage());
+                $("#notice").html("正在提交,请稍后...");
+            })
+        });
+    });
+</script>
+{% endblock %}

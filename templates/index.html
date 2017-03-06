@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+<title>{% block title %}仪表盘{% endblock %}</title>
+
+{% block active %} class="active" {% endblock %}
+
+{% block content %}
+    <style>
+        #btn {
+            margin: 5px;
+            border-radius: 5px;
+            color: white;
+            border: none;
+            padding: 5px 6px;
+            float: right;  {# 浮动靠右 #}
+        }
+        #box-title {
+            font-size: 15px;
+            font-weight: bold;
+        }
+        #box-content {
+            height: 120px;
+            padding: 5px 6px;
+            border-top: 1px solid #e7eaec;
+        }
+        .box-content h3 {
+            color: #428bca
+        }
+    </style>
+    <div class="col-md-12">
+        <div class="content-panel" style="margin-bottom: 12px">
+            <h5 ><span style="font-weight: bold">仪表盘</span> /</h5>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <div class="content-panel" style="height: 60px">
+            <button id="btn" style="background: #3071a9" onclick="openUpdate()">开启实时</button>
+            <button id="btn" style="background: #d9534f" onclick="closeUpdate()">关闭实时</button>
+            <button id="btn" style="background: #1ab394;padding-right: 14px;padding-left: 14px" onclick="month()">近30天</button>
+            <button id="btn" style="background: #1ab394;padding-right: 14px;padding-left: 14px" onclick="week()">近7天</button>
+            <button id="btn" style="background: #1ab394;padding-right: 18px;padding-left: 18px" onclick="openUpdate()">今天</button>  {# 浅绿色 #23c6c8 #}
+    {#        <button id="btn" style="background: #1ab394;padding-right: 14px;padding-left: 14px" onclick="dayPUV()">昨日总PV/UV</button>#}
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <div class="content-panel" style="margin-bottom: 30px">
+
+         <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+            <div id="charts-line" style="height:400px;"></div>
+        </div>
+    </div>
+    <div class="content-panel" style="width: 400px; height: 200px;float: left;margin-left: 16px" >
+        <div>
+            <p id="box-title">主机总数</p>
+        </div>
+        <div id="box-content">
+            <h3><a href="{% url 'salt_minion_list' %}">2</a></h3>
+            <h5>All Host</h5>
+        </div>
+    </div>
+
+    <div class="content-panel" style="width: 400px; height: 200px;float: left;margin-left: 230px" >
+        <div>
+            <p id="box-title">用户总数</p>
+        </div>
+        <div id="box-content">
+            <h3><a href="#">1</a></h3>
+            <h5>All User</h5>
+        </div>
+    </div>
+    <div class="content-panel" style="width: 400px; height: 200px;float: right;margin-right: 16px" >
+        <div>
+            <p id="box-title">PV/UV</p>
+        </div>
+        <div id="box-content">
+            <h4>
+                {% for k, v in total_puv.items %}
+                    {% if k == 'date_time' %}
+                        日期: {{ v }} <br>
+                    {% endif %}
+                {% endfor %}
+                {% for k, v in total_puv.items %}
+                    {% if k == 'total_pv' %}
+                        日PV: {{ v }} <br>
+                    {% endif %}
+                {% endfor %}
+                {% for k, v in total_puv.items %}
+                    {% if k == 'total_uv' %}
+                        日UV: {{ v }} <br>
+                    {% endif %}
+                {% endfor %}
+            </h4>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block custom_js %}
+    <script src="static/js/echarts.min.js"></script>
+    <script type="text/javascript">
+                // 基于准备好的dom，初始化echarts图表
+                var myChart = echarts.init(document.getElementById('charts-line'));
+
+				var option = {
+				    title : {
+				        text: '网站访问量',
+                        left: 'center',
+                        top: 'auto'
+				    },
+				    tooltip : {
+				        trigger: 'axis'
+				    },
+                    // 图例
+				    legend: {
+				        data:['PV','UV'],
+                        top: '30'
+				    },
+                    // 工具
+				    toolbox: {
+				        show : true,
+				        feature : {
+				            mark : {show: true},
+				            dataView : {show: true, readOnly: false},
+				            magicType : {show: true, type: ['line','bar', 'stack', 'tiled']},  // 工具可显示的图
+				            restore : {show: true},
+				            saveAsImage : {show: true}
+				        }
+				    },
+				    calculable : true,
+                    // X 横坐标
+				    xAxis : [
+				        {
+{#                            axisLabel: {rotate: 50},#}
+                            name: '今天',
+				            type : 'category',  // 分类
+				            boundaryGap : false,
+				            data : []
+				        }
+				    ],
+                    // Y 竖坐标
+				    yAxis : [
+				        {
+                            name: 'PV/页面浏览量 | UV/独立IP',
+				            type : 'value'
+				        }
+				    ],
+                    // 系列
+				    series : [
+				        {
+				            name:'PV',
+				            type:'line',
+				            smooth:true,
+				            itemStyle: {normal: {areaStyle: {type: 'default'}, color: '#23c6c8'}, lineStyle: {color: '#23c6c8'}},
+				            data:[]
+				        },
+				        {
+				            name:'UV',
+				            type:'line',
+				            smooth:true,
+				            itemStyle: {normal: {areaStyle: {type: 'default'}, color: '#f8ac59'}},
+				            data:[]
+				        }]
+                // 为echarts对象加载数据
+                };
+                myChart.setOption(option);
+    var period = 'day';
+    function getData(period) {
+        $.ajax({
+            type: 'get',
+            url: '/charts/data-period=' + period,
+            dataType: 'json',
+            success: function (data) {
+{#                console.log(data.pv);#}
+                if (period == 'week') {
+                    option.xAxis[0]['name'] = '近7天';
+                }
+                else if (period == 'month') {
+                    option.xAxis[0]['name'] = '近30天';
+                }
+                option.series[0]['data'] = [];
+                option.series[1]['data'] = [];
+                option.xAxis[0]['data'] = [];
+                for (var i = 0; i < data.pv.length; i++) {
+{#                    console.log(data.pv[i]);#}
+                    option.series[0]['data'].push(data.pv[i]);
+                    option.xAxis[0]['data'].push(data.date_time[i])
+                }
+                for (var y = 0; y < data.uv.length; y++) {
+                    option.series[1]['data'].push(data.uv[y]);
+                }
+                myChart.setOption(option);
+            }
+        })
+    }
+    getData(period);
+    // 定时更新
+    var time = setInterval(function(){
+        getData(period);
+    }, 60000);  // 60s
+    // 点击按钮的函数
+    function month(){
+        var period = 'month';
+        getData(period);
+        closeUpdate();
+    }
+    function week(){
+        var period = 'week';
+        getData(period);
+        closeUpdate();
+    }
+    function dayPUV() {
+        var period = 'day_puv';
+        getData(period);
+        closeUpdate();
+    }
+    function closeUpdate(){
+        clearInterval(time)
+    }
+    function openUpdate(){
+        window.location.href='/index';
+    }
+    </script>
+{% endblock %}
+
+{#</body>#}
+{#</html>#}

@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+<title>{% block title %}执行命令{% endblock %}</title>
+
+{% block active_2 %} class="active" {% endblock %}
+{% block active_2_2 %} class="active"{% endblock %}
+
+{% block content %}
+{#    <div class="content-panel" style="margin-bottom: 12px;margin-left: 16px;width: 1650px;padding-top: 7px">#}
+    <div class="col-md-12">
+        <div class="content-panel">
+            <h5 >仪表盘 / 主机管理 / <span style="font-weight: bold">批量管理</span></h5>
+        </div>
+    </div>
+
+    <div class="form-panel" style="width: 1650px;margin-left: 15px;margin-top: 66px">
+      <h4 class="mb"><i class="fa fa-angle-right"></i>批量执行命令</h4>
+      <form class="form-inline" method="post">
+          {% csrf_token %}
+          <div class="form-group">
+              <input type="text" class="form-control" name="salt_target" onfocus="this.value=''" value="*">  {# placeholder="Bash" 提示输入什么信息 #}
+          </div>
+          <div class="form-group">
+              <select name="salt_fun" class="form-control" >
+                  <option value="cmd.run">cmd.run</option>
+                  <option value="grains.items">grains.items</option>
+                  <option value="disk.usage">disk.usage</option>
+              </select>
+          </div>
+          <div class="form-group">
+{#              <input type="text" class="form-control" name="salt_arg" onfocus="this.value=''" value='echo "Hello World!"'>#}
+              <input type="text" class="form-control" name="salt_arg" placeholder='echo "Hello World!"' >
+          </div>
+          <button type="submit" class="btn btn-theme">执行</button>
+      </form>
+    </div>
+    <div class="salt-exec-result">
+{#        <h5 style="color: black"><b>执行结果:</b></h5>#}
+{#        {% if exec_result %}#}
+        <pre style="padding-top: 1px; background: black; color: white;height: 620px">
+            {{ exec_result | safe | linebreaks }}  {# safe使用HTML元素，比如内容中的换行元素. linebreaks是将\n换成<br/>，不知为啥不起作用#}
+        </pre>
+{#            {% else %}#}
+{#            <h5 style="color: black"><b>没有执行结果...</b></h5>#}
+{#        {% endif %}#}
+    </div>
+{% endblock %}

@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+<title>{% block title %}列出所有minion{% endblock %}</title>
+
+{% block costom_style %}
+<style>
+    button {
+        border-radius: 5px;
+        padding: 3px 4px;
+        color: white;
+        border: none;
+        margin-right: 5px;
+    }
+    .btn-bottom {
+        width: 100px;
+        height: 52px;
+        float: left;
+        padding-top: 10px;
+    }
+</style>
+{% endblock %}
+
+{# 用于鼠标点击导航栏，背景颜色停留在二级页面，每个页面在每个链接上引用一次#}
+{% block active_2 %} class="active" {% endblock %}
+{% block active_2_1 %} class="active" {% endblock %}
+
+{% block content %}
+    <div class="col-md-12">
+        <div class="content-panel" style="margin-bottom: 12px">
+            <h5 >仪表盘 / 主机管理 / <span style="font-weight: bold">主机列表</span></h5>
+        </div>
+    </div>
+    <div class="col-md-12">
+          <div class="content-panel">
+              <h4 class="mb"><i class="fa fa-angle-right"></i>Minion主机</h4>
+                <ul class="nav nav-tabs">
+                  <li role="presentation" id="opt-type1" class="active"><a href="#" class="fa fa-twitter">&nbsp;&nbsp;已允许Key</a></li>
+                  <li role="presentation" id="opt-type2"><a href="#" class="fa fa-github">&nbsp;&nbsp;未允许Key</a></li>
+                </ul>
+              <table class="table">
+                  <thead>
+                  <tr>
+                      <th><input type="checkbox" id="all"></th>
+                      <th>Minion ID</th>
+                      <th>状态</th>
+                      <th>操作</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  {% for minion_id in accept_minion %}
+                      <tr>
+                          <td style="width: 30px"><input type="checkbox" id="chk_list_{{ forloop.counter0 }}" value="{{ minion_id }}" name="option"></td>
+                          <td>{{ minion_id }}</td>
+                          <td style="color: #00DB00">Accept Keys</td>
+                          <td style="width: 180px">
+                              <button id="btn1" style="background: #d9534f" data-id="{{ minion_id }}">删除</button>
+                              <button id="btn3" style="background: #f8ac59">SSH连接</button>
+                          </td>
+                      </tr>
+                  {% endfor %}
+                  </tbody>
+              </table>
+          <div style="width: 1650px;height: 50px">
+              <div class="btn-bottom">
+                  <button id="submit-delete" style="background: #d9534f" >删除</button>
+                  <button id="submit-accept" style="background: #23c6c8" >允许</button>
+              </div>
+{#              <div style="float: right;width: 800px">#}
+{#                <ul class="pagination" style="float: right;padding-right: 20px">#}
+{#                {% if total_num %}#}
+{#                    <li><a href="salt/minion_list/page=1">&laquo;</a></li>#}
+{#                        {% for i in total_num %}#}
+{#                            {% if page == forloop.counter %}#}
+{#                                <li class="active" ><a href="salt/minion_list/page={{ forloop.counter }}">{{ forloop.counter }}</a></li>#}
+{#                            {% else %}#}
+{#                                <li><a href="salt/minion_list/page={{ forloop.counter }}">{{ forloop.counter }}</a></li>#}
+{#                            {% endif %}#}
+{#                        {% endfor %}#}
+{#                    <li><a href="salt/minion_list/page={{ total_num | length }}">&raquo;</a></li>#}
+{#                {% else %}#}
+{#                        <li><a href="salt/minion_list/page=1">返回</a></li>#}
+{#                {% endif %}#}
+{##}
+{#                </ul>#}
+            </div>
+          </div>
+          <p id="notice"></p>
+          </div><! --/content-panel -->
+      </div><!-- /col-md-12 -->
+{% endblock %}
+
+{% block custom_js %}
+<script>
+    function loadPage(){
+        location.reload();
+{#                        window.location.href="{% url 'salt_minion_list' %}";#}
+    }
+    $(document).ready(function() {
+        $.ajaxSetup({headers:{'X-CSRFToken':'{{ csrf_token }}'}}); {# 将csrf token值一同post到后端服务器，否则报403错误 #}
+        $("#opt-type1").click(function(){
+            $(this).addClass("active");
+            $("#opt-type2").removeClass("active");
+            $(".table tbody").html(
+                    "{% for minion_id in accept_minion %}" +
+                      "<tr>" +
+                        "<td style='width: 30px'><input type='checkbox' id='chk_list_{{ forloop.counter0 }}' value='{{ minion_id }}' name='option'> </td>" +
+                        "<td>{{ minion_id }}</td>" +
+                        "<td style='color: #00DB00'>Accept Keys</td>" +
+                        "<td style='width: 180px;'> <button id='btn1' style='background: #d9534f' data-id='{{ minion_id }}'>删除</button>" +
+                        "<button id='btn3' style='background: #f8ac59'>SSH连接</button> </td>" +
+                        "</tr>" +
+                  "{% endfor %}"
+            );
+        });
+        $("#opt-type2").click(function(){
+            $(this).addClass("active");
+            $("#opt-type1").removeClass("active");
+            $(".table tbody").html(
+                    "{% for minion_id in unaccept_minion %}" +
+                      "<tr>" +
+                          "<td style='width: 30px'><input type='checkbox' id='chk_list_{{ forloop.counter0 }}' value='{{ minion_id }}' name='option'> </td>" +
+                          "<td>{{ minion_id }}</td>" +
+                          "<td style='color: red'>Unaccept Keys</td>" +
+                        "<td style='width: 180px;'> <button class='btn1' style='background: #d9534f' data-id='{{ minion_id }}'>删除</button>" +
+                        "<button id='btn2' style='background: #23c6c8' data-id='{{ minion_id }}'>允许</button>" +
+                        "<button id='btn3' style='background: #f8ac59'>SSH连接</button> </td>" +
+                        "</tr>" +
+                  "{% endfor %}"
+            );
+        });
+        $("tbody").on("click","#btn1",function() {   {# 把事件绑定到父元素上 #}
+            var id = $(this).data('id');    {# 获取data-id值 #}
+            var json_obj = {del_minion_id: id};
+            if(confirm("确定刪除？")) {
+                $.post("/salt/action", json_obj, "json", loadPage());
+            }
+        });
+
+        $("tbody").on("click","#btn2",function() {
+            var id = $(this).data('id');
+            var json_obj = {accept_minion_id: id};
+            $.post("/salt/action", json_obj, "json", loadPage());
+        });
+        $("#all").click(function(){
+            if($(this).is(":checked")){
+                $("input[name='option']").attr("checked", true);
+                var arr = [];
+                var len = $(".table tbody tr").length;
+                for (var i=0;i<len;i++){
+                    arr[i] = $('#chk_list_' + i).val();
+                }
+            }else{
+                $("input[name='option']").removeAttr("checked", false);
+            }
+            $("#submit-delete").click(function(){
+                var json_obj = {'del_all_minion_id': arr};
+                if(confirm("确定刪除？")){
+                    $.post("/salt/action", json_obj, 'json', loadPage());
+                    $("#notice").html("正在提交,请稍后...");
+                }
+            });
+            $("#submit-accept").click(function(){
+                var json_obj = {'accept_all_minion_id': arr};
+                $.post("/salt/action", json_obj, 'json', loadPage());
+                $("#notice").html("正在提交,请稍后...");
+            })
+        });
+    });
+</script>
+{% endblock %}

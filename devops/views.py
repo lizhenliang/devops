@@ -25,7 +25,7 @@ def index(request):
     sql = "select DATE_FORMAT(insert_time,'%Y-%m-%d') from web_access_count where DATE_SUB(CURDATE(),INTERVAL 1 DAY) = DATE(insert_time) LIMIT 1" #% (field_name, table_name, field_name)
     cursor.execute(sql)
     # date_time = cursor.fetchall()[0][0]
-    date_time = '2016-10-09'
+    date_time = '2017-01-01'
 
     sql = "select cast(sum(pv_number) as char(12)) from %s where DATE_SUB(CURDATE(),INTERVAL 1 DAY) = DATE(%s)" % (table_name, field_name)
     cursor.execute(sql)
@@ -293,81 +293,16 @@ def saltAction(request):
             if key == "del_minion_id":
                 minion_id = request.POST[key]
                 sapi.deleteKey(minion_id)
-                # return HttpResponseRedirect('/salt/minion_list')
             elif key == "accept_minion_id":
                 minion_id = request.POST[key]
                 sapi.acceptKey(minion_id)
-                # return HttpResponseRedirect('/salt/minion_list')
             elif request.body.startswith("del_all_minion_id"):
                 minion_id_list = request.POST.getlist('del_all_minion_id[]')
                 sapi.deleteKey(minion_id_list)
                 return "ok"
-                # return HttpResponseRedirect('/salt/minion_list')
             elif request.body.startswith("accept_all_minion_id"):
-                # print request.POST.getlist('accept_all_minion_id[]')
                 minion_id_list = request.POST.getlist('accept_all_minion_id[]')
                 sapi.acceptKey(minion_id_list)
-                # return HttpResponseRedirect('/salt/minion_list')
-
-@login_required()
-def installSoft(request):
-    # if request.method == "GET":
-    return render_to_response('deploy/install_soft.html', RequestContext(request))
-
-def sshConnectInfo(request):
-    if request.method == "POST":
-        info = {}
-        for key in request.POST:
-            info[key] = request.POST[key]
-        # print info
-        # return HttpResponseRedirect('/deploy/install_soft')
-        hostname = info['hostname']
-        port = int(info['port'])
-        username = info['username']
-        password = info['password']
-
-        # if not hostname:
-        #     print "no"
-        #     hostname_error = "主机名不能为空！"
-        #     return render_to_response('deploy/install_soft.html',{'hostname_error':hostname_error}, RequestContext(request))
-        # if not port:
-        #     port_error = "端口不能为空！"
-        #     return render_to_response('deploy/install_soft.html',{'port_error':port_error}, RequestContext(request))
-        # if not username:
-        #     username_error = "用户名不能为空！"
-        #     return render_to_response('deploy/install_soft.html',{'username_error':username_error}, RequestContext(request))
-        # if not password:
-        #     pass_error = "密码不能为空！"
-        #     return render_to_response('deploy/install_soft.html',{'pass_error':pass_error}, RequestContext(request))
-
-        ssh = ssh_paramiko.SSHConnect()
-
-        if 'opt1' in info and 'opt1' in info:
-            print("all ok")
-            return HttpResponseRedirect('/deploy/install_soft', RequestContext(request))
-                # ssh.uploadFile(hostname, port, username, password)
-                # result = ssh.remoteExecCmd(hostname, port, username, password, '/bin/bash /tmp/zabbix_agent_install.sh')
-                # return HttpResponseRedirect('/deploy/install_soft')
-        else:
-            if 'opt1' in info:
-                print("opt1")
-                return render_to_response('deploy/install_soft.html', RequestContext(request))
-            elif 'opt2' in info:
-                print("opt2")
-                src_file = 'zabbix_agent_install.sh'
-                dst_dir = '/tmp'
-                ssh.uploadFile(hostname, port, username, password, src_file, dst_dir)
-                result = ssh.remoteExecCmd(hostname, port, username, password, '/bin/bash %s/%s' % (dst_dir, src_file))
-                for i in result:
-                    print i.strip('\n')
-                return render_to_response('deploy/install_soft.html', {'result':result}, RequestContext(request))
-            else:
-                print("all no")
-                opt_error = "请选择要安装的软件！"
-                return render_to_response('deploy/install_soft.html',{'opt_error':opt_error}, RequestContext(request))
-
-def getLog(request):
-    return render_to_response('log/view_log.html')
 
 def login(request):
     if request.method == 'GET':
@@ -377,10 +312,6 @@ def login(request):
     else:
         username = request.POST.get('username')
         password = request.POST.get('password')
-        # if username == "admin" and password == "pass":
-        #     return HttpResponseRedirect('index')
-        # else:
-        #     return HttpResponseRedirect('login')
         user = auth.authenticate(username=username, password=password)
         if user is not None:
             auth.login(request, user)

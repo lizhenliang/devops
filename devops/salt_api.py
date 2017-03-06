@@ -17,8 +17,8 @@ else:
 class SaltAPI():
     def __init__(self):
         self.api_address = 'https://192.168.1.99:8000'
-        self.api_user = 'admin'
-        self.api_password = 'admin_pass'
+        self.api_user = 'salt-api'
+        self.api_password = 'salt-api'
     def token(self):
         params = {'eauth':'pam', 'username':self.api_user, 'password':self.api_password}
         url = self.api_address + '/login'

@@ -15,7 +15,7 @@ MySQLdb（apt-get install python-mysqldb）
 git clone https://github.com/lizhenliang/DevOps.git
 cd DevOps
 # 修改数据库连接地址
-vi mysite/settings.py  
+vi mysite/settings.py   
 # 生成数据库表
 python manage.py migrate 
 # 修改salt rest api连接地址

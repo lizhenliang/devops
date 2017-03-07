@@ -10,9 +10,11 @@ Django1.9（pip install django==1.9）
 依赖模块：
 
 MySQLdb（apt-get install python-mysqldb）
-步骤：
+
+部署步骤：
 # 下载源码
 git clone https://github.com/lizhenliang/DevOps.git
+
 cd DevOps
 # 修改数据库连接地址
 vi mysite/settings.py   

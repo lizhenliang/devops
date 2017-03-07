@@ -48,7 +48,7 @@ mysql -h$HOST -u$USER -p$PASSWD $DB -e "truncate web_access_count" &>/dev/null #
 DATE=$(date +"%F %T")  
 ID=1  
 for i in {1..100}; do  
-    &npsp;&npsp;mysql -h$HOST -u$USER -p$PASSWD $DB -e "insert into web_access_count(id,insert_time,pv_number,uv_number) values ('$ID','$DATE','$RANDOM','$RANDOM')" &>/dev/null  
-    &npsp;&npsp;let ID++  
-    &npsp;&npsp;sleep 1  
+&nbsp; &nbsp; mysql -h$HOST -u$USER -p$PASSWD $DB -e "insert into web_access_count(id,insert_time,pv_number,uv_number) values ('$ID','$DATE','$RANDOM','$RANDOM')" &>/dev/null  
+&nbsp; &nbsp; let ID++  
+&nbsp; &nbsp; sleep 1  
 done  

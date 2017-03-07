@@ -4,6 +4,7 @@
 运行环境：
 
 Python2.7
+
 Django1.9（pip install django==1.9）
 
 依赖模块：

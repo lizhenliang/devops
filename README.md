@@ -37,8 +37,8 @@ python manage.py createsuperuser
 
 python manage.py runserver 0.0.0.0:8888 
 
-7.数据库表生成图表测试数据  
-\#!/bin/bash  
+7.数据库表生成图表测试数据      
+\#!/bin/bash  
 HOST="192.168.1.10"  
 USER="root"  
 PASSWD="password"  

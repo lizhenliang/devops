@@ -38,17 +38,17 @@ python manage.py createsuperuser
 python manage.py runserver 0.0.0.0:8888 
 
 7.数据库表生成图表测试数据
-#!/bin/bash
-HOST="192.168.1.10"
-USER="root"
-PASSWD="password"
-DB="devops_test"
-mysql -h$HOST -u$USER -p$PASSWD $DB -e "truncate web_access_count" &>/dev/null # 清空表
-DATE=$(date +"%F %T")
-ID=1
-for i in {1..100}; do
-    mysql -h$HOST -u$USER -p$PASSWD $DB -e "insert into web_access_count(id,insert_time,pv_number,uv_number) values ('$ID','$DATE','$RANDOM','$RANDOM')" &>/dev/null
-    let ID++
-    sleep 1
-done
 
+#!/bin/bash  
+HOST="192.168.1.10"  
+USER="root"  
+PASSWD="password"  
+DB="devops_test"  
+mysql -h$HOST -u$USER -p$PASSWD $DB -e "truncate web_access_count" &>/dev/null # 清空表  
+DATE=$(date +"%F %T")  
+ID=1  
+for i in {1..100}; do  
+    mysql -h$HOST -u$USER -p$PASSWD $DB -e "insert into web_access_count(id,insert_time,pv_number,uv_number) values ('$ID','$DATE','$RANDOM','$RANDOM')" &>/dev/null  
+    let ID++  
+    sleep 1  
+done  

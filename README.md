@@ -52,3 +52,5 @@ for i in {1..100}; do
 &emsp;&emsp;&emsp;let ID++  
 &emsp;&emsp;&emsp;sleep 1  
 done  
+
+QQ技术群：323779636（Shell/Python运维开发群）

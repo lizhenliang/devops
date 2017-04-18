@@ -29,6 +29,8 @@ python manage.py migrate
 
 vi devops/salt_api.py 
 
+salt配置：https://github.com/lizhenliang/Shell-Scripts/blob/master/salt-api-config.sh
+
 5.创建登录用户名
 
 python manage.py createsuperuser 

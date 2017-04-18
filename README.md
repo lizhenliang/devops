@@ -37,20 +37,8 @@ python manage.py createsuperuser
 
 python manage.py runserver 0.0.0.0:8888 
 
-7.数据库表生成图表测试数据
+7.生成PV/UV图表测试数据脚本
 
-\#!/bin/bash  
-HOST="192.168.1.10"  
-USER="root"  
-PASSWD="password"  
-DB="devops_test"  
-mysql -h$HOST -u$USER -p$PASSWD $DB -e "truncate web_access_count" &>/dev/null # 清空表  
-DATE=$(date +"%F %T")  
-ID=1  
-for i in {1..100}; do  
-&emsp;&emsp;&emsp;mysql -h$HOST -u$USER -p$PASSWD $DB -e "insert into web_access_count(id,insert_time,pv_number,uv_number) values ('$ID','$DATE','$RANDOM','$RANDOM')" &>/dev/null  
-&emsp;&emsp;&emsp;let ID++  
-&emsp;&emsp;&emsp;sleep 1  
-done  
+https://github.com/lizhenliang/Shell-Scripts/blob/master/pv_uv_test_data.sh
 
 QQ技术群：323779636（Shell/Python运维开发群）

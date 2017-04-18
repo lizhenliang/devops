@@ -16,7 +16,7 @@ else:
 
 class SaltAPI():
     def __init__(self):
-        self.api_address = 'https://192.168.1.99:8000'
+        self.api_address = 'https://192.168.1.221:8000'
         self.api_user = 'salt-api'
         self.api_password = 'salt-api'
     def token(self):
@@ -122,11 +122,11 @@ if __name__ == "__main__":
     api = SaltAPI()
     # print api.acceptKey('client')
     api = HostInfo()
-    print api.assetInfo('site01')
+    print api.assetInfo('192.168.1.221')
     # print api.allMinion()
     # print api.deleteKey('ubuntu')
     # print api.acceptKey('centos7')
     # print api.execCmdNoArg('*', 'disk.usage')
     # print api.execCmdNoArg('*', 'grains.items')
-    # print api.execCmdArg('*', 'cmd.run', 'df -h')
+    # print api.execCmdArg('192.168.1.221', 'cmd.run', 'df -h')
     # print api.execCmdNodeGroup('cmd.run', 'df -h', 'test')

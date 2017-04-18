@@ -228,7 +228,7 @@ def addAsset(request):
             addHostAsset(request, minion_id)
             return HttpResponseRedirect('/asset/list/page=1')
         except KeyError:
-            error = "Minion ID不存在！"
+            error = "Minion ID不存在或者无法连接！"
             all_asset_info = AssetInfo.objects.all()
             return render_to_response('asset/asset_list.html', {'error': error,'all_asset_info': all_asset_info})
     else:

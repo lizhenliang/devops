@@ -44,3 +44,5 @@ python manage.py runserver 0.0.0.0:8888
 https://github.com/lizhenliang/Shell-Scripts/blob/master/pv_uv_test_data.sh
 
 QQ技术群：249171211（Python运维开发群）
+
+![avatar](https://github.com/lizhenliang/Shell-Python-Document/blob/master/%E8%81%94%E7%B3%BB%E6%96%B9%E5%BC%8F.jpg)
